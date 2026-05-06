@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useState } from 'react';
 import api from '../services/api';
+import { Plus } from 'lucide-react'; // Barlag et, eger ýok bolsa goş
+
 
 // 1. Harydyň görnüşini (Type) kesgitleýäris
 interface Product {
@@ -59,10 +61,26 @@ export default function Home() {
     </section>
 
     {/* Harytlar Sanawy (Öňki grid-iň şu ýerde dowam eder) */}
-    <section className="max-w-7xl mx-auto px-6 md:px-12 pb-20">
-       <h2 className="text-3xl font-black text-gray-900 mb-10">Meşhur Harytlar ✨</h2>
-       {/* Öňki products.map dowam edýär... */}
-    </section>
+    {/* ... Hero Section-dan soňra gelýän bölüm ... */}
+
+<section className="max-w-7xl mx-auto px-6 md:px-12 pb-20">
+  <h2 className="text-3xl font-black text-gray-900 mb-10 tracking-tight">
+    Meşhur Harytlar <span className="text-blue-600">✨</span>
+  </h2>
+
+  {/* INE, ŞU DIV-DEN BAŞLAP, GRID-IŇ SOŇUNA ÇENLI ÇALŞYR */}
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+    {products.map((product) => (
+      <div 
+        key={product.id} 
+        className="group bg-white rounded-[32px] p-2 border border-gray-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 relative overflow-hidden"
+      >
+        {/* ... Men ugradan täze Product Card kodlarynyň hemmesini şu aralyga goý ... */}
+      </div>
+    ))}
+  </div>
+</section>
+
   </main>
 );
 
