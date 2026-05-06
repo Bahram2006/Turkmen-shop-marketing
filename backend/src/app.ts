@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import { query } from './config/db';
 import authRoutes from './modules/auth/auth.routes';
 import productRoutes from './modules/products/product.routes';
+import cartRoutes from './modules/cart/cart.routes';
 
 dotenv.config();
 
@@ -13,10 +14,11 @@ app.use(express.json());
 app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/cart', cartRoutes);
 
 const PORT = process.env.PORT || 5000;
 
-// Baza bilen baglanyşygy barlamak üçin "Health Check"
 app.get('/', async (req, res) => {
   try {
     const result = await query('SELECT NOW()');
