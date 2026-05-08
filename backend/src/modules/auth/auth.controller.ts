@@ -1,13 +1,14 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { registerUserService, loginUserService } from './auth.service';
 
 /**
- * @desc Register Controller
+ * @desc    Ulanyjyny hasaba almak (Register)
+ * @route   POST /api/auth/register
  */
-export const register = async (req: Request, res: Response) => {
+export const register = async (req: Request, res: Response, next: NextFunction) => {
   const { full_name, email, password } = req.body;
 
-  // Maglumatlaryň barlygyny barlamak (Validation)
+  // 1. Giriş maglumatlarynyň barlagy (Input Validation)
   if (!full_name || !email || !password || password.length < 6) {
     return res.status(400).json({ 
       success: false, 
@@ -16,26 +17,29 @@ export const register = async (req: Request, res: Response) => {
   }
 
   try {
+    // 2. Business logikany Service arkaly ýerine ýetirýäris
     const user = await registerUserService(full_name, email, password);
+
+    // 3. Şowly jogap
     res.status(201).json({
       success: true,
       message: 'Registrasiýa üstünlikli boldy! 🎉',
       user
     });
-  } catch (err: any) {
-    res.status(400).json({ 
-      success: false, 
-      message: err.message 
-    });
+  } catch (err) {
+    // 4. Ýalňyşlygy Global Error Handler-e ugradýarys
+    next(err);
   }
 };
 
 /**
- * @desc Login Controller
+ * @desc    Ulgama giriş (Login)
+ * @route   POST /api/auth/login
  */
-export const login = async (req: Request, res: Response) => {
+export const login = async (req: Request, res: Response, next: NextFunction) => {
   const { email, password } = req.body;
 
+  // 1. Giriş maglumatlarynyň barlagy
   if (!email || !password) {
     return res.status(400).json({ 
       success: false, 
@@ -44,16 +48,17 @@ export const login = async (req: Request, res: Response) => {
   }
 
   try {
+    // 2. Login logikasyny Service-den çagyrýarys
     const data = await loginUserService(email, password);
+
+    // 3. Şowly jogap
     res.status(200).json({
       success: true,
       message: 'Giriş üstünlikli! 🚀',
       ...data
     });
-  } catch (err: any) {
-    res.status(401).json({ 
-      success: false, 
-      message: err.message 
-    });
+  } catch (err) {
+    // 4. Islendik ýalňyşlykda (Mysal: Parol ýalňyş bolsa) merkezi error handler işleýär
+    next(err);
   }
 };
