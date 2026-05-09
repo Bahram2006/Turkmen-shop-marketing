@@ -1,163 +1,124 @@
 "use client";
-import { useState, useEffect } from "react";
-import api from "@/services/api";
-import { Trash2, Edit, PackagePlus, Loader2, X } from "lucide-react";
+import { motion } from "framer-motion";
+import { 
+  TrendingUp, 
+  Users, 
+  ShoppingBag, 
+  DollarSign, 
+  ArrowUpRight, 
+  ArrowDownRight,
+  Clock
+} from "lucide-react";
+import { Button } from "@/components/ui/Button";
 
-interface Product {
-  id: number;
-  name: string;
-  description: string;
-  price: number | string;
-  stock_quantity: number;
-  image_url: string;
-  category_id: number;
-}
+// DUMMY DATA (Statistika üçin)
+const STATS = [
+  { id: 1, label: "Jemi Söwda", value: "$12,450.00", trend: "+12.5%", isUp: true, icon: DollarSign, color: "bg-blue-600" },
+  { id: 2, label: "Sargytlar", value: "154", trend: "+3.2%", isUp: true, icon: ShoppingBag, color: "bg-purple-600" },
+  { id: 3, label: "Müşderiler", value: "1,240", trend: "-1.5%", isUp: false, icon: Users, color: "bg-orange-600" },
+  { id: 4, label: "Aýlyk Girdeji", value: "$3,200.00", trend: "+8.4%", isUp: true, icon: TrendingUp, color: "bg-emerald-600" },
+];
 
-export default function AdminPage() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [fetching, setFetching] = useState(true);
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-
-  const [formData, setFormData] = useState({
-    name: "",
-    price: "",
-    description: "",
-    image_url: "",
-    category_id: 1,
-    stock_quantity: 10
-  });
-
-  // 1. ESLint säwligini aýyrmak üçin fetch logikasyny useEffect-iň içine salýarys
-  useEffect(() => {
-    const getProducts = async () => {
-      setFetching(true);
-      try {
-        const res = await api.get("/products");
-        const data = res.data.products || res.data;
-        setProducts(Array.isArray(data) ? data : []);
-      } catch (err) {
-        console.error("Harytlar ýüklenmedi", err);
-      } finally {
-        setFetching(false);
-      }
-    };
-    getProducts();
-  }, []);
-
-  // 2. Täzelemek üçin kömekçi funksiýa
-  const refreshData = async () => {
-    try {
-      const res = await api.get("/products");
-      const data = res.data.products || res.data;
-      setProducts(Array.isArray(data) ? data : []);
-    } catch (err) {
-      console.error("Täzeläp bolmady", err);
-    }
-  };
-
-  const handleAddProduct = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      await api.post("/products", formData);
-      alert("Haryt üstünlikli goşuldy! 📦");
-      setFormData({ name: "", price: "", description: "", image_url: "", category_id: 1, stock_quantity: 10 });
-      refreshData();
-    } catch (err) {
-      alert("Haryt goşup bolmady!");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleUpdateProduct = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingProduct) return;
-    setLoading(true);
-    try {
-      await api.put(`/products/${editingProduct.id}`, editingProduct);
-      alert("Haryt täzelendi! ✅");
-      setEditingProduct(null);
-      refreshData();
-    } catch (err) {
-      alert("Täzeläp bolmady!");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDelete = async (id: number) => {
-    if (!confirm("Hakykatdan hem öçürmek isleýärsiňizmi?")) return;
-    try {
-      await api.delete(`/products/${id}`);
-      refreshData(); 
-    } catch (err) {
-      alert("Harydy öçürip bolmady!");
-    }
-  };
-
+export default function AdminDashboard() {
   return (
-    <div className="space-y-12">
-      <h1 className="text-4xl font-black text-gray-900 tracking-tight flex items-center gap-3">
-        Harytlar Dolandyryşy <PackagePlus className="text-blue-600" />
-      </h1>
-
-      <form onSubmit={handleAddProduct} className="bg-white p-10 rounded-[40px] shadow-xl border border-gray-50 space-y-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">Täze Haryt Goş</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <input required value={formData.name} placeholder="Harydyň ady" className="p-4 bg-gray-50 rounded-2xl outline-none focus:ring-4 focus:ring-blue-50 transition-all" onChange={(e) => setFormData({...formData, name: e.target.value})} />
-          <input required value={formData.price} type="number" placeholder="Bahasy ($)" className="p-4 bg-gray-50 rounded-2xl outline-none focus:ring-4 focus:ring-blue-50 transition-all" onChange={(e) => setFormData({...formData, price: e.target.value})} />
+    <div className="space-y-12 pb-20">
+      {/* Header Section */}
+      <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div className="space-y-2">
+          <h1 className="text-4xl font-black text-gray-900 tracking-tighter">Dashboard.</h1>
+          <p className="text-gray-400 font-medium italic text-sm">Dükanymyzyň häzirki ýagdaýy we görkezijileri.</p>
         </div>
-        <button disabled={loading} className="w-full bg-blue-600 text-white p-5 rounded-3xl font-black text-xl hover:bg-black transition-all shadow-xl disabled:bg-gray-400">
-          {loading ? <Loader2 className="animate-spin mx-auto" /> : "Harydy Goş 🚀"}
-        </button>
-      </form>
+        <div className="flex gap-4">
+          <Button variant="outline" size="sm">Hasabat al</Button>
+          <Button size="sm">Täze Haryt +</Button>
+        </div>
+      </header>
 
-      <div className="bg-white rounded-[40px] shadow-xl border border-gray-50 overflow-hidden">
-        <table className="w-full text-left">
-          <thead className="bg-gray-50 border-b border-gray-100">
-            <tr>
-              <th className="p-6 font-black text-gray-600 uppercase text-[10px] tracking-widest">Haryt</th>
-              <th className="p-6 font-black text-gray-600 uppercase text-[10px] tracking-widest">Baha</th>
-              <th className="p-6 font-black text-gray-600 uppercase text-[10px] tracking-widest text-right">Amallar</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-50">
-            {fetching ? (
-              <tr><td colSpan={3} className="p-20 text-center text-gray-400 font-bold italic animate-pulse">Ýüklenýär...</td></tr>
-            ) : products.map((p) => (
-              <tr key={p.id} className="hover:bg-gray-50/50 transition-all group">
-                <td className="p-6 font-bold text-gray-800">{p.name}</td>
-                <td className="p-6 font-black text-blue-600">${Number(p.price).toFixed(2)}</td>
-                <td className="p-6 text-right space-x-2">
-                  <button onClick={() => setEditingProduct(p)} className="p-3 bg-gray-50 text-gray-400 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm"><Edit size={16} /></button>
-                  <button onClick={() => handleDelete(p.id)} className="p-3 bg-gray-100 text-gray-400 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-sm"><Trash2 size={16} /></button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        {STATS.map((stat, index) => (
+          <motion.div
+            key={stat.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1 }}
+            className="bg-white p-8 rounded-[40px] border border-gray-50 shadow-[0_20px_50px_rgba(0,0,0,0.02)] hover:shadow-xl transition-all duration-500 group"
+          >
+            <div className="flex justify-between items-start mb-6">
+              <div className={`${stat.color} p-4 rounded-2xl text-white shadow-lg shadow-gray-100 group-hover:scale-110 transition-transform duration-500`}>
+                <stat.icon size={24} />
+              </div>
+              <div className={`flex items-center gap-1 text-xs font-black ${stat.isUp ? 'text-emerald-500' : 'text-red-500'}`}>
+                {stat.isUp ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
+                {stat.trend}
+              </div>
+            </div>
+            <div className="space-y-1">
+              <p className="text-[10px] font-black uppercase tracking-[2px] text-gray-400">{stat.label}</p>
+              <h3 className="text-3xl font-black text-gray-900 tracking-tighter">{stat.value}</h3>
+            </div>
+          </motion.div>
+        ))}
       </div>
 
-      {editingProduct && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white w-full max-w-2xl rounded-[40px] shadow-2xl overflow-hidden relative">
-            <button onClick={() => setEditingProduct(null)} className="absolute top-6 right-6 p-2 bg-gray-100 rounded-full hover:bg-red-100 hover:text-red-600 transition-all"><X size={24} /></button>
-            <form onSubmit={handleUpdateProduct} className="p-10 space-y-6">
-              <h2 className="text-3xl font-black text-gray-900 mb-8">Harydy Düzet</h2>
-              <div className="space-y-4">
-                <input required value={editingProduct.name} className="w-full p-5 bg-gray-50 border-none rounded-2xl outline-none focus:ring-4 focus:ring-blue-100" onChange={(e) => setEditingProduct({...editingProduct, name: e.target.value})} />
-                <input required type="number" value={editingProduct.price} className="w-full p-5 bg-gray-50 border-none rounded-2xl outline-none focus:ring-4 focus:ring-blue-100" onChange={(e) => setEditingProduct({...editingProduct, price: e.target.value})} />
-                <textarea value={editingProduct.description} className="w-full p-5 bg-gray-50 border-none rounded-2xl outline-none focus:ring-4 focus:ring-blue-100 min-h-[120px]" onChange={(e) => setEditingProduct({...editingProduct, description: e.target.value})} />
+      {/* Main Content: Recent Orders & Analytics Preview */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+        {/* Soňky Sargytlar (Clean Table) */}
+        <div className="lg:col-span-8 bg-white rounded-[40px] border border-gray-50 shadow-sm overflow-hidden p-10">
+          <div className="flex justify-between items-center mb-10">
+            <h2 className="text-2xl font-black text-gray-900 tracking-tight">Soňky Sargytlar.</h2>
+            <button className="text-xs font-black text-blue-600 uppercase tracking-widest hover:underline">Ählisini Gör</button>
+          </div>
+          <div className="space-y-6">
+            {[1, 2, 3].map((order) => (
+              <div key={order} className="flex items-center justify-between p-6 bg-gray-50/50 rounded-3xl border border-transparent hover:border-gray-100 hover:bg-white transition-all duration-300">
+                <div className="flex items-center gap-5">
+                  <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center font-black text-gray-400 border border-gray-50 shadow-sm">
+                    #{order}
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-gray-900">Aman Amanow</h4>
+                    <p className="text-xs text-gray-400 font-medium">iPhone 15 Pro Max • 12.05.2024</p>
+                  </div>
+                </div>
+                <div className="text-right space-y-1">
+                  <p className="font-black text-gray-900">$1,399.00</p>
+                  <span className="px-3 py-1 bg-amber-50 text-amber-600 rounded-full text-[10px] font-black uppercase border border-amber-100">Pending</span>
+                </div>
               </div>
-              <button disabled={loading} className="w-full bg-blue-600 text-white p-5 rounded-3xl font-black text-xl hover:bg-black transition-all">
-                {loading ? "Täzelenýär..." : "Üýtgeşmeleri Ýatda Sakla ✅"}
-              </button>
-            </form>
+            ))}
           </div>
         </div>
-      )}
+
+        {/* Activity Timeline */}
+        <div className="lg:col-span-4 bg-gray-900 rounded-[40px] p-10 text-white shadow-2xl shadow-blue-100 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600 rounded-full blur-[80px] opacity-20" />
+          <h2 className="text-2xl font-black tracking-tight mb-10">Işjeňlik.</h2>
+          <div className="space-y-8">
+            {[
+              { time: "2 sag öň", msg: "Täze ulanyjy hasaba durdy", icon: Clock },
+              { time: "5 sag öň", msg: "Haryt stogy azaldy: AirPods", icon: ShoppingBag },
+              { time: "8 sag öň", msg: "Sargyt #154 gowşuryldy", icon: TrendingUp },
+            ].map((act, i) => (
+              <div key={i} className="flex gap-4 group">
+                <div className="relative">
+                  <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center group-hover:bg-blue-600 transition-colors">
+                    <act.icon size={18} />
+                  </div>
+                  {i !== 2 && <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[1px] h-8 bg-white/10" />}
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-gray-400">{act.time}</p>
+                  <p className="text-sm font-bold text-gray-200">{act.msg}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <Button variant="outline" className="w-full mt-12 border-white/10 text-white hover:bg-white hover:text-gray-900">
+            Loglary Gör
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }
