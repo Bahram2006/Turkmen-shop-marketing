@@ -1,11 +1,12 @@
-// app/page.tsx
 import { Hero } from "@/components/home/Hero";
+import { ProductSection } from "@/components/home/ProductSection";
 
 export default function Home() {
   return (
-    <main>
+    <main className="bg-white">
       <Hero />
-      {/* Geljekde bura ProductGrid-i (Harytlar bölümini) goşarys */}
+      <ProductSection />
+      {/* Indiki ädimde bura "Featured Collection" ýa-da "Footer" goşarys */}
     </main>
   );
 }

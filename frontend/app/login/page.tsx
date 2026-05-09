@@ -1,112 +1,94 @@
 "use client";
-import { useState } from "react";
-import axios from "axios"; // Axios-y barlag üçin import edýäris
-import api from "@/services/api";
-import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/Button";
+import { ArrowLeft, Mail, Lock, ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { useAuthStore } from "@/store/useAuthStore";
+import { useState } from "react";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  
-  const router = useRouter();
-  const setAuth = useAuthStore((state) => state.setAuth);
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      const response = await api.post("/auth/login", { email, password });
-      const { user, token } = response.data;
-
-      setAuth(user, token);
-
-      if (user.role === 'admin') {
-        router.push("/admin");
-      } else {
-        router.push("/");
-      }
-
-      router.refresh();
-
-    } catch (error: unknown) {
-      // 1. ESLint 'any' säwligini aýyrmak üçin 'axios.isAxiosError' ulanýarys
-      let message = "Email ýa-da parol ýalňyş!";
-
-      if (axios.isAxiosError(error)) {
-        // Eger säwlik API-dan gelýän bolsa, onuň message-yny alýarys
-        message = error.response?.data?.message || message;
-      } else if (error instanceof Error) {
-        // Eger başga umumy säwlik bolsa
-        message = error.message;
-      }
-
-      alert(message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
 
   return (
-    <div className="flex items-center justify-center min-h-[90vh] bg-gray-50 px-4">
-      <div className="w-full max-w-md p-8 bg-white shadow-2xl rounded-[40px] border border-gray-100">
-        <div className="text-center mb-10">
-          <h1 className="text-4xl font-black text-gray-900 mb-2 tracking-tighter">
-            Hoş geldiňiz! 🔑
-          </h1>
-          <p className="text-gray-500 font-medium">Ulgama girip söwdaňyzy dowam ediň</p>
+    <div className="min-h-screen bg-white flex flex-col md:flex-row">
+      {/* Çep tarap: Vizual bölümi */}
+      <div className="hidden md:flex md:w-1/2 bg-gray-50 relative overflow-hidden items-center justify-center">
+        <div className="absolute inset-0 z-0">
+          <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-blue-100 rounded-full blur-[120px] opacity-50" />
+          <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-purple-100 rounded-full blur-[120px] opacity-50" />
         </div>
-
-        <form onSubmit={handleLogin} className="space-y-6">
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2 ml-1 uppercase tracking-widest text-[10px]">
-              Email adresiňiz
-            </label>
-            <input 
-              required 
-              type="email" 
-              placeholder="mysal@mail.com"
-              className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-100 transition-all outline-none text-gray-800" 
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2 ml-1 uppercase tracking-widest text-[10px]">
-              Parolyňyz
-            </label>
-            <input 
-              required 
-              type="password" 
-              placeholder="••••••••"
-              className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-100 transition-all outline-none text-gray-800" 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
-
-          <button 
-            disabled={loading}
-            className={`w-full p-5 rounded-2xl font-black text-xl transition-all shadow-xl shadow-blue-100
-              ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-black active:scale-95'}`}
-          >
-            {loading ? "Girilýär... 🔄" : "Giriş 🚀"}
-          </button>
-        </form>
-
-        <div className="mt-8 text-center">
-          <p className="text-gray-500 font-bold">
-            Hasabyňyz ýokmy?{" "}
-            <Link href="/register" className="text-blue-600 hover:underline">
-              Registrasiýa boluň
-            </Link>
+        
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1 }}
+          className="relative z-10 text-center space-y-6 p-12"
+        >
+          <h2 className="text-6xl font-black text-gray-900 tracking-tighter leading-none">
+            Seniň dünýäňe <br /> <span className="text-blue-600">Giriş.</span>
+          </h2>
+          <p className="text-gray-400 font-medium max-w-sm mx-auto">
+            Innowasion söwda ulgamyna hoş geldiňiz. Ähli sargytlaryňyz we sebediňiz bir ýerde.
           </p>
-        </div>
+        </motion.div>
+      </div>
+
+      {/* Sag tarap: Form bölümi */}
+      <div className="w-full md:w-1/2 flex items-center justify-center p-8 md:p-24 relative">
+        <Link href="/" className="absolute top-10 left-10 text-gray-400 hover:text-blue-600 transition-colors flex items-center gap-2 font-black uppercase text-[10px] tracking-widest">
+          <ArrowLeft size={16} /> Yzyna gaýt
+        </Link>
+
+        <motion.div 
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="w-full max-w-md space-y-12"
+        >
+          <div className="space-y-4">
+            <h1 className="text-4xl font-black text-gray-900 tracking-tighter">Hoş geldiňiz!</h1>
+            <p className="text-gray-500 font-medium">Ulgama girip, täze nesil söwdany dowam ediň.</p>
+          </div>
+
+          <form className="space-y-6">
+            <div className="space-y-4">
+              <div className="relative group">
+                <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-600 transition-colors" size={20} />
+                <input 
+                  type="email" 
+                  placeholder="Email adresiňiz"
+                  className="w-full p-6 pl-14 bg-gray-50 border border-gray-50 rounded-[28px] outline-none focus:ring-4 focus:ring-blue-50 focus:bg-white transition-all font-medium"
+                />
+              </div>
+
+              <div className="relative group">
+                <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-600 transition-colors" size={20} />
+                <input 
+                  type="password" 
+                  placeholder="Paroluňyz"
+                  className="w-full p-6 pl-14 bg-gray-50 border border-gray-50 rounded-[28px] outline-none focus:ring-4 focus:ring-blue-50 focus:bg-white transition-all font-medium"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end">
+              <Link href="#" className="text-[11px] font-black uppercase tracking-widest text-gray-400 hover:text-blue-600">
+                Paroly ýatdan çykardyňyzmy?
+              </Link>
+            </div>
+
+            <Button size="xl" className="w-full h-[70px] rounded-[28px]">
+              Giriş Et <ArrowRight className="ml-2" />
+            </Button>
+          </form>
+
+          <div className="text-center">
+            <p className="text-gray-400 font-medium">
+              Hasabyňyz ýokmy?{" "}
+              <Link href="/register" className="text-blue-600 font-black hover:underline underline-offset-4">
+                Hasap Açyň
+              </Link>
+            </p>
+          </div>
+        </motion.div>
       </div>
     </div>
   );
