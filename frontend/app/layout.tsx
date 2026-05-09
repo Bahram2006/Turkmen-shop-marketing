@@ -5,7 +5,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="tk">
       <body>
-        <Navbar /> {/* Bu setiriň barlygyny barla */}
+        <Navbar />
         {children}
       </body>
     </html>
